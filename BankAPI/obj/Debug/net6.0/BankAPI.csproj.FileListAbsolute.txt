@@ -63,3 +63,4 @@ C:\Users\peeed\OneDrive\Documents\Curso .NET\BankAPI\BankAPI\bin\Debug\net6.0\Mi
 C:\Users\peeed\OneDrive\Documents\Curso .NET\BankAPI\BankAPI\bin\Debug\net6.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 C:\Users\peeed\OneDrive\Documents\Curso .NET\BankAPI\BankAPI\bin\Debug\net6.0\Newtonsoft.Json.dll
 C:\Users\peeed\OneDrive\Documents\Curso .NET\BankAPI\BankAPI\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
+C:\Users\peeed\OneDrive\Documents\Curso .NET\BankAPI\BankAPI\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

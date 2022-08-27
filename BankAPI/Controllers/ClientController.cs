@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using BankAPI.Services;
 using BankAPI.Data.BankModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BankAPI.Controllers;
 
+[Authorize]
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class ClientController : ControllerBase
 {
     private readonly ClientService _service;
@@ -14,58 +16,62 @@ public class ClientController : ControllerBase
         _service = service;
     }
 
-    [HttpGet]
-    public IEnumerable<Client> Get()
+    [HttpGet("getAll")]
+    public async Task<IEnumerable<Client>>  Get()
     {
-        return _service.GetAll();
+        return await _service.GetAll();
     }
 
-    [HttpGet("{id}")]
-    public ActionResult<Client> GetById(int id)
+    [HttpGet("getByID/{id}")]
+    public async Task<ActionResult<Client>> GetById(int id)
     {
-        var client = _service.GetId(id);
+        var client = await _service.GetId(id);
         if(client is null )
-            return NotFound();
+            return ClientNotFound(id);
         
         return client;
     }
 
-    [HttpPost]
-    public IActionResult Create (Client client)
+    [HttpPost("create")]
+    public async Task<IActionResult> Create (Client client)
     {
-        var newClient =_service.Create(client);
+        var newClient = await _service.Create(client);
 
         return CreatedAtAction(nameof(GetById),new { id = newClient.Id}, newClient);
     }
 
-    [HttpPut("{id}")]
-    public IActionResult Update(int id, Client client)
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> Update(int id, Client client)
     {
         if(id != client.Id)
             return BadRequest();
         
-        var clientToUpdate = _service.GetId(id);
+        var clientToUpdate = await _service.GetId(id);
         
         if(clientToUpdate is not null)
         {
-            _service.Update(id, client);
+            await _service.Update(id, client);
             return NoContent();
         }
         else
-            return NotFound();
+            return ClientNotFound(id);
         
     }
 
-    [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    [HttpDelete("delete/{id}")]
+    public async Task<IActionResult> Delete(int id)
     {
-        var clientToDelete = _service.GetId(id);
+        var clientToDelete = await _service.GetId(id);
         if(clientToDelete is not null)
         {
-            _service.Delete(id);
+            await _service.Delete(id);
             return Ok();
         }
         else
-            return NotFound();
+            return ClientNotFound(id);
+    }
+
+    public NotFoundObjectResult ClientNotFound(int id){
+        return NotFound(new {message = $"El cliente con el ID ={id} no esxite." });
     }
 }    

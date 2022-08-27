@@ -13,8 +13,15 @@ namespace BankAPI.Data.BankModels
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
-        public string? Email { get; set; }
+        public string Email { get; set; } = null!;
+
+        internal static object where(Func<object, object> value)
+        {
+            throw new NotImplementedException();
+        }
+
         public DateTime RegDate { get; set; }
+        public string Pwd { get; set; } = null!;
 
         public virtual ICollection<Account> Accounts { get; set; }
     }

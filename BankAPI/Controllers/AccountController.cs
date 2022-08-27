@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using BankAPI.Services;
 using BankAPI.Data.BankModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BankAPI.Controllers;
 
+[Authorize]
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class AccountController : ControllerBase{
     private readonly AccountService _service;
     private readonly ClientService _serviceClient;
@@ -16,80 +19,84 @@ public class AccountController : ControllerBase{
         
     }
 
-    [HttpGet]
-    public IEnumerable<Account> Get()
+    [HttpGet("getAll")]
+    public async Task<IEnumerable<AccountDtoOut>> GetAll()
     {
-        return _service.GetAll();
+        return await _service.GetAll();
     }
 
-    [HttpGet("{id}")]
-    public ActionResult<Account> GetById(int id)
+    [HttpGet("getByID/{id}")]
+    public async Task<ActionResult<AccountDtoOut>> GetById(int id)
     {
-        var account = _service.GetById(id);
+        var account = await _service.GetDtoById(id);
         if(account is null )
-            return NotFound();
+            return AccountNotFound(id);
         
         return account;
     }
 
-    public ClientService Get_serviceClient()
+    /*public ClientService Get_serviceClient()
     {
         return _serviceClient;
-    }
+    }*/
 
-    [HttpPost]
-    public IActionResult Create (AccountModel account)
+    [HttpPost("create")]
+    public async Task<IActionResult> Create (AccountDtoIn account)
     {
         
         if(account.ClientId is not null)
        {
             int x=(int)account.ClientId;
-            var IdClientBrowser=_serviceClient.GetId(x);
+            var IdClientBrowser= await _serviceClient.GetId(x);
             if (IdClientBrowser is null)
                  return BadRequest();
         }
        
-        _service.Create(account);
+        await _service.Create(account);
         return Ok();
     }
 
-    [HttpPut("{id}")]
-    public IActionResult Update(int id, AccountModel account)
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> Update(int id, AccountDtoIn account)
     {
         if(id != account.Id)
             return BadRequest();
         
-        var accountToUpdate = _service.GetById(id);
+        var accountToUpdate = await _service.GetById(id);
         
         if(accountToUpdate is not null)
         {
             if(accountToUpdate.ClientId != account.ClientId)
             {
-                int x=(int)account.ClientId;
-                var IdClientBrowser=_serviceClient.GetId(x);
+                int x=account.ClientId.GetValueOrDefault();
+                var IdClientBrowser = await _serviceClient.GetId(x);
                 if (IdClientBrowser is null)
                     return BadRequest();
                
             }
-            _service.Update(id, account);
+            await _service.Update(id, account);
             return NoContent();
         }
         else
-            return NotFound();
+            return AccountNotFound(id);
         
     }
 
-    [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    [HttpDelete("delete/{id}")]
+    public async Task<IActionResult> Delete(int id)
     {
-        var accountToDelete = _service.GetById(id);
+        var accountToDelete = await _service.GetById(id);
         if(accountToDelete is not null)
         {
-            _service.Delete(id);
+            await _service.Delete(id);
             return Ok();
         }
         else
-            return NotFound();
+            return AccountNotFound(id);
+    }
+
+     public NotFoundObjectResult AccountNotFound(int id){
+        return NotFound(new {message = $"La cuenta con el ID ={id} no esxite." });
     }
     
 }

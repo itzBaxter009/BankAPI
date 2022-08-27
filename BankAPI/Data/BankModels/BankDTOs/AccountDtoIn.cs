@@ -1,9 +1,9 @@
 
 namespace BankAPI.Data.BankModels
 {
-    public class AccountModel
+    public class AccountDtoIn
     {
-        public AccountModel()
+        public AccountDtoIn()
         {
 
         }
